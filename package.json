@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "discord.js-selfbot-v11": "^11.5.1",
-    "fs": "0.0.1-security",
-    "mongoose": "^6.0.12"
+    "mongoose": "^6.0.13"
   }
 }

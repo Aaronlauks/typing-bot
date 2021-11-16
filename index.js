@@ -11,19 +11,20 @@ mongoose.connect(config.mongodb, {
   });
 
 bot.on("ready", async () => {
-    console.log(`Logged in as ${bot.user.tag}`);
-    bot.channels.get("748107605335080982").send(`ok starting now x3`);
-    let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-    if(!selfbot){
-	      selfbot = new selfCluster({
-            userID: bot.user.id,
-			daily: 0,
-            weekly: 0
-          });
-          await selfbot.save().catch(e => console.log(e));
-        }
+  console.log(`Logged in as ${bot.user.tag}`);
+  bot.channels.get("748107605335080982").send(`ok starting now x3`);
+  let selfbot = await selfCluster.findOne({
+    userID: bot.user.id
+  });
+  if (!selfbot) {
+    selfbot = new selfCluster({
+      userID: bot.user.id,
+      daily: 0,
+      weekly: 0,
+      on: true
+    });
+    await selfbot.save().catch(e => console.log(e));
+  }
 });
 
 bot.on("message", async message => {
