@@ -28,8 +28,7 @@ bot.on("ready", async () => {
 
 bot.on("message", message => {
     if(message.author.id == "767633990701678602"){
-      if(message.embeds[0]) console.log(message.embeds[0])
-        if(message.embeds[0].description.includes("Quick-React Rank Sim - Specops")){
+        if(message.embeds[0].description.includes("Quick-React Rank Sim")){
             message.react("✅")
         } else if(message.embeds[0].description && message.embeds[0].description.includes("How Long Does It Take For The Bomb To Explode Once Planted?")){
           message.channel.send("40s")
