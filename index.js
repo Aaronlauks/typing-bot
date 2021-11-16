@@ -26,7 +26,7 @@ bot.on("ready", async () => {
         }
 });
 
-bot.on("message", message => {
+bot.on("message", async message => {
   if (message.author.id == "767633990701678602") {
     setTimeout(function () {
       if (message.embeds[0].description.includes("Quick-React Rank Sim")) {
