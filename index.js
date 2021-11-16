@@ -67,6 +67,24 @@ bot.on("message", message => {
         message.channel.send("error new text")
       }
     }, 500);
+  } else if (message.author.id == bot.user.id){
+    if(message.content == "me stop cb"){
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.on = false;
+      await selfbot.save().catch(e => console.log(e));
+      message.channel.send("ok stop")
+    } else if (message.content == "me help") {
+      message.channel.send("use 'me stop cb' or 'me start cb'")
+    } else if (message.content == "me start cb") {
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.on = true;
+      await selfbot.save().catch(e => console.log(e));
+      message.channel.send("ok on")
+    }
   }
 });
 
@@ -89,7 +107,10 @@ var sendmessage = setInterval (async function () {
 }, 1000);
 
 var cmd = setInterval (async function () {
-  bot.channels.get(channelID).send("cb rank");
+  let selfbot = await selfCluster.findOne({
+    userID: bot.user.id
+  });
+  if (selfbot.on) bot.channels.get(channelID).send("cb rank");
 }, 90500);
 
 bot.login(process.env.BOT_TOKEN);
