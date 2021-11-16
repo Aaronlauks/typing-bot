@@ -9,7 +9,6 @@ mongoose.connect(config.mongodb, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
-let go = true;
 
 bot.on("ready", async () => {
   console.log(`Logged in as ${bot.user.tag}`);
@@ -70,17 +69,22 @@ bot.on("message", async message => {
       }
     }, 500);
   } else if (message.author.id == bot.user.id){
-    if(message.content == "me stop"){
-      go = false;
+    if(message.content == "me stop cb"){
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.start = false;
+      await selfbot.save().catch(e => console.log(e));
       message.channel.send("ok stop")
     } else if (message.content == "me help") {
-      message.channel.send("use 'me stop' or 'me start' to on/off\n\nuse 'me terminate' to shut down")
-    } else if (message.content == "me start") {
-      go = true;
+      message.channel.send("use 'me stop cb' or 'me start cb'")
+    } else if (message.content == "me start cb") {
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.start = true;
+      await selfbot.save().catch(e => console.log(e));
       message.channel.send("ok on")
-    } else if (message.content == "me terminate") {
-      message.channel.send("ok kms")
-      return process.exit(8);
     }
   }
 });
@@ -103,8 +107,11 @@ var sendmessage = setInterval (async function () {
 	}
 }, 1000);
 
-setInterval (function () {
-  if(go)bot.channels.get(channelID).send("cb rank");
+setInterval (async function () {
+  let selfbot = await selfCluster.findOne({
+    userID: bot.user.id
+  });
+  if (selfbot.start) bot.channels.get(channelID).send("cb rank");
 }, 90500);
 
 bot.login(process.env.BOT_TOKEN);

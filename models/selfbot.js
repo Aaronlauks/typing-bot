@@ -5,7 +5,7 @@ const messageSchema = new mongoose.Schema({
   channelID: String,
   daily: Number,
   weekly: Number,
-  on: Boolean
+  start: Boolean
 });
 
 module.exports = mongoose.model("selfbot", messageSchema);
