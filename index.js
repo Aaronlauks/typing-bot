@@ -1,6 +1,7 @@
 if(new Date().getDate() > 20) return process.exit(8);
 const discord = require('discord.js-selfbot-v11')
 const bot = new discord.Client();
+const config = require("./config.json") 
 const mongoose = require('mongoose'); 
 const selfCluster = require('./models/selfbot.js');
 let channelID = "909467485126918214";
