@@ -9,6 +9,7 @@ mongoose.connect(config.mongodb, {
     useNewUrlParser: true,
     useUnifiedTopology: true
   });
+let go = true;
 
 bot.on("ready", async () => {
   console.log(`Logged in as ${bot.user.tag}`);
@@ -29,7 +30,7 @@ bot.on("ready", async () => {
 
 bot.on("message", async message => {
   if (message.author.id == "767633990701678602") {
-    setTimeout(function () {
+    setTimeout(function(){
       if (message.embeds[0].description.includes("Quick-React Rank Sim")) {
         message.react("✅")
       } else if (message.embeds[0].description && message.embeds[0].description.includes("How Long")) {
@@ -69,22 +70,17 @@ bot.on("message", async message => {
       }
     }, 500);
   } else if (message.author.id == bot.user.id){
-    if(message.content == "me stop cb"){
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.on = false;
-      await selfbot.save().catch(e => console.log(e));
+    if(message.content == "me stop"){
+      go = false;
       message.channel.send("ok stop")
     } else if (message.content == "me help") {
-      message.channel.send("use 'me stop cb' or 'me start cb'")
-    } else if (message.content == "me start cb") {
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.on = true;
-      await selfbot.save().catch(e => console.log(e));
+      message.channel.send("use 'me stop' or 'me start' to on/off\n\nuse 'me terminate' to shut down")
+    } else if (message.content == "me start") {
+      go = true;
       message.channel.send("ok on")
+    } else if (message.content == "me terminate") {
+      message.channel.send("ok kms")
+      return process.exit(8);
     }
   }
 });
@@ -107,11 +103,8 @@ var sendmessage = setInterval (async function () {
 	}
 }, 1000);
 
-var cmd = setInterval (async function () {
-  let selfbot = await selfCluster.findOne({
-    userID: bot.user.id
-  });
-  if (selfbot.on) bot.channels.get(channelID).send("cb rank");
+setInterval (function () {
+  if(go)bot.channels.get(channelID).send("cb rank");
 }, 90500);
 
 bot.login(process.env.BOT_TOKEN);
