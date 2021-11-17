@@ -64,6 +64,8 @@ bot.on("message", async message => {
         message.channel.send("Scanners")
       } else if (message.embeds[0].description && message.embeds[0].description.includes("What is Wallbangable in Raid?")) {
         message.channel.send("Garbage Cans")
+      } else if (message.embeds[0].description && message.embeds[0].description.includes("Promotion")) {
+        message.channel.send("ez win")
       } else if (message.embeds[0].description && !message.embeds[0].description.includes("Game Result") && !message.embeds[0].description.includes("The Rank Queue is")) {
         message.channel.send("error new text")
       }
@@ -97,6 +99,8 @@ var sendmessage = setInterval (async function () {
 		selfbot.daily = new Date().getTime();
 		selfbot.save().catch(e => console.log(e));
 		bot.channels.get(channelID).send("cb daily");
+    bot.channels.get("748107625891364884").send("pls daily");
+    bot.channels.get("748107694677819402").send("owo daily");
         await selfbot.save().catch(e => console.log(e));
 	}
     if(new Date().getTime() - selfbot.daily > 6.048e+8){
