@@ -67,7 +67,7 @@ bot.on("message", async message => {
       } else if (message.embeds[0].description && message.embeds[0].description.includes("Promotion")) {
         message.channel.send("ez win")
       }
-    }, 500);
+    }, 700);
   } else if (message.author.id == bot.user.id){
     if(message.content == "me stop cb"){
       let selfbot = await selfCluster.findOne({
@@ -88,7 +88,9 @@ bot.on("message", async message => {
     }
   } else if (message.author.id == "294882584201003009"){
     if(message.embeds[0].description && message.embeds[0].description.includes("React with 🎉 to enter!")){
-      message.react("🎉")
+      setTimeout(function(){
+        message.react("🎉")
+      },1000)
     }
   }
 });
