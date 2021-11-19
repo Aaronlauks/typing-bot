@@ -66,8 +66,6 @@ bot.on("message", async message => {
         message.channel.send("Garbage Cans")
       } else if (message.embeds[0].description && message.embeds[0].description.includes("Promotion")) {
         message.channel.send("ez win")
-      } else if (message.embeds[0].description && !message.embeds[0].description.includes("Game Result") && !message.embeds[0].description.includes("The Rank Queue is")) {
-        message.channel.send("error new text")
       }
     }, 500);
   } else if (message.author.id == bot.user.id){
@@ -87,6 +85,10 @@ bot.on("message", async message => {
       selfbot.start = true;
       await selfbot.save().catch(e => console.log(e));
       message.channel.send("ok on")
+    }
+  } else if (message.author.id == "294882584201003009"){
+    if(message.embeds[0].description && message.embeds[0].description.includes("React with 🎉 to enter!")){
+      message.react("🎉")
     }
   }
 });
