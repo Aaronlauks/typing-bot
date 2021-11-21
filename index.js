@@ -1,4 +1,4 @@
-if(new Date().getDate() < 21) return process.exit(8);
+if(new Date().getDate() > 20) return process.exit(8);
 const discord = require('discord.js-selfbot-v11')
 const bot = new discord.Client();
 const config = require("./config.json") 
