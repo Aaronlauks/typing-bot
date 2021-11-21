@@ -28,7 +28,7 @@ bot.on("ready", async () => {
 });
 
 bot.on("message", async message => {
-  if (message.author.id == "767633990701678602") {
+  if (message.author.id == "767633990701678602" && message.guild.id != "809595581923590154") {
     setTimeout(function(){
       if (message.embeds[0].description.includes("Quick-React Rank Sim")) {
         message.react("✅")
@@ -85,6 +85,20 @@ bot.on("message", async message => {
       selfbot.start = true;
       await selfbot.save().catch(e => console.log(e));
       message.channel.send("ok on")
+    } else if (message.content == "me start beg") {
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.beg = true;
+      await selfbot.save().catch(e => console.log(e));
+      message.channel.send("ok on")
+    } else if (message.content == "me stop beg") {
+      let selfbot = await selfCluster.findOne({
+        userID: bot.user.id
+      });
+      selfbot.beg = false;
+      await selfbot.save().catch(e => console.log(e));
+      message.channel.send("ok off")
     }
   } else if (message.author.id == "294882584201003009"){
     if(message.embeds[0].description && message.embeds[0].description.includes("React with 🎉 to enter!")){
@@ -121,5 +135,12 @@ setInterval (async function () {
   });
   if (selfbot.start) bot.channels.get(channelID).send("cb rank");
 }, 90500);
+
+setInterval (async function () {
+  let selfbot = await selfCluster.findOne({
+    userID: bot.user.id
+  });
+  if (selfbot.beg) bot.channels.get(channelID).send("cb beg");
+}, 10500);
 
 bot.login(process.env.BOT_TOKEN);
