@@ -1,146 +1,202 @@
-if(new Date().getDate() > 20) return process.exit(8);
-const discord = require('discord.js-selfbot-v11')
-const bot = new discord.Client();
-const config = require("./config.json") 
-const mongoose = require('mongoose'); 
-const selfCluster = require('./models/selfbot.js');
-let channelID = "909467485126918214";
+if (new Date().getDate() > 20) return process.exit(8);
+require("discord-reply");
+var discord = require('discord.js');
+require("discord-reply");
+var bot = new discord.Client();
+const config = require("./config.json")
+const mongoose = require('mongoose');
+const dataCluster = require('./models/data.js');
+const fs = require("fs");
+
+function getBigram(word) {
+  let result = [];
+  for (let i = 0; i < word.length - 1; i++) {
+    result.push(word[i] + word[i + 1]);
+  }
+  return result;
+}
 mongoose.connect(config.mongodb, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+bot.aliases = new discord.Collection();
+bot.commands = new discord.Collection();
+
+fs.readdir("./commands/", (err, files) => {
+  let jsfile = files.filter(f => f.split(".").pop() === "js")
+  jsfile.forEach((f, i) => {
+    let props = require(`./commands/${f}`);
+    bot.commands.set(props.config.name, props);
+    props.config.aliases.forEach(aliases => {
+      bot.aliases.set(aliases, props.config.name);
+    });
   });
+});
 
 bot.on("ready", async () => {
   console.log(`Logged in as ${bot.user.tag}`);
-  bot.channels.get("748107605335080982").send(`ok starting now x3`);
-  let selfbot = await selfCluster.findOne({
-    userID: bot.user.id
+  bot.user.setActivity('Writing essays')
+  let main = await dataCluster.findOne({
+    userID: "SERVERS"
   });
-  if (!selfbot) {
-    selfbot = new selfCluster({
-      userID: bot.user.id,
+  if (!main) {
+    main = new dataCluster({
+      someID: "SERVERS",
+      lb: [],
+      names: []
+    });
+    await main.save().catch(e => console.log(e));
+  }
+});
+
+bot.on('message', async message => {
+  let guild = await dataCluster.findOne({
+    someID: message.guild.id
+  });
+  if (!guild) {
+    guild = new dataCluster({
+      someID: message.guild.id,
+      prefix: "!",
+      disable: [],
+      lb: [],
+      names: [],
+    });
+    await guild.save().catch(e => console.log(e));
+  }
+  if (message.content.match(/^<@!?(\d+)>$/) && !message.author.bot) {
+    let match = message.content.match(/^<@!?(\d+)>$/);
+    if (match[1] == "696032366845624392") {
+      return message.channel.send(`H-hey **my prefix is **\`${guild.prefix}\``)
+    }
+  }
+  let prefix = guild.prefix;
+  let user = await dataCluster.findOne({
+    someID: message.author.id
+  });
+  if (!user) {
+    user = new dataCluster({
+      someID: message.author.id,
+      balance: 500,
       daily: 0,
       weekly: 0,
-      on: true
+      inv: [],
+      time: 0,
+      channelID: 0,
+      words: 0
     });
-    await selfbot.save().catch(e => console.log(e));
+    message.lineReply(`Welcome to ${bot.user.username}! Check your DM for more information`)
   }
-});
+  if (user.time != 0) {
+    if (new Date().getTime() - user.time > 300000) {
+      let coin = 200 - Math.floor(Math.random() * (100 - 1 + 1)) + 1;
+      message.lineReply(`Sorry you have run out of time! **You lost ${coin} coins**`)
+      if (user.balance < coin) {
+        user.balance = 0;
+      } else user.balance -= coin
+    } else if (message.channel.id != user.channelID) {
+      return message.lineReply(`You still have an ongoing race in <#${user.channelID}>!`)
+    } else {
+      if (user.words == message.content) {
+        let wpm = Math.round((user.words.length / 5) / ((new Date().getTime() - user.time) / 60000)) // gross WPM
+        const embed = new discord.MessageEmbed()
+          .setTitle("Race end!")
+          .addField("Perfect! No Errors", `+ ${wpm} 🪙 \`Gross WPM\``)
+          .setFooter(`Total gained: ${(100 + wpm)}`)
+        message.lineReply(embed);
+        user.balance += (wpm);
+      } else {
+        word1 = user.words;
+        word2 = message.content;
+        const bigram1 = getBigram(word1),
+          bigram2 = getBigram(word2);
+        let similar = [];
 
-bot.on("message", async message => {
-  if (message.author.id == "767633990701678602" && message.guild.id != "809595581923590154") {
-    setTimeout(function(){
-      if (message.embeds[0].description.includes("Quick-React Rank Sim")) {
-        message.react("✅")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Long")) {
-        message.channel.send("40s")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How much is Kevlar Replacement?")) {
-        message.channel.send("500")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How many ARs are there on")) {
-        message.channel.send("4")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Mutch Total Ammo Does A Uratio Hold?")) {
-        message.channel.send("40")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How many PISTOLS")) {
-        message.channel.send("5")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How many SMGs are there on")) {
-        message.channel.send("3")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How many SNIPERS are there on")) {
-        message.channel.send("3")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Mutch Total Ammo Does A Super-90 Hold?")) {
-        message.channel.send("32")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Many Body-Taps Does it Take to")) {
-        message.channel.send("3")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("Does a P-250 One-Tap")) {
-        message.channel.send("No")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Mutch Total Ammo Does An MPX Hold?")) {
-        message.channel.send("120")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How many Total T6 Standard Knifes Are There?")) {
-        message.channel.send("6")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("How Mutch Total Ammo Does The Dual MTX Have?")) {
-        message.channel.send("96")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("Total SMGs")) {
-        message.channel.send("5")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("What is Wallbangable in Bureau?")) {
-        message.channel.send("Scanners")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("What is Wallbangable in Raid?")) {
-        message.channel.send("Garbage Cans")
-      } else if (message.embeds[0].description && message.embeds[0].description.includes("Promotion")) {
-        message.channel.send("ez win")
+        for (let i = 0; i < bigram1.length; i++) {
+          if (bigram2.indexOf(bigram1[i]) > -1) {
+            similar.push(bigram1[i]);
+          }
+        }
+        let wrong = Math.max(bigram1.length, bigram2.length) - similar.length;
+        let correct = similar.length;
+        let wpm = Math.round(((user.words.length / 5) - wrong) / ((new Date().getTime() - user.time) / 60000)) // net WPM
+        if ((correct / user.words.length * 100) < 50) {
+          let coin = 100 - Math.floor(Math.random() * (50 - 1 + 1)) + 1;
+          message.lineReply(`You failed to type the text correctly. **You lost ${coin} coins**`)
+          if (user.balance < coin) {
+            user.balance = 0;
+          } else user.balance -= coin
+        } else {
+          const embed = new discord.MessageEmbed()
+            .setTitle("Race end!")
+            .addField(`${Math.round(correct/user.words.length*100)}% Accuracy`, `+ ${wpm} 🪙 \`Net WPM\`\n- ${100 - Math.round(correct/user.words.length*100)} 🪙 \`Mistake %\``)
+            .setFooter(`Total gained: ${(wpm - wrong)}`)
+          message.lineReply(embed);
+          user.balance += (wpm - wrong);
+        }
       }
-    }, 700);
-  } else if (message.author.id == bot.user.id){
-    if(message.content == "me stop cb"){
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.start = false;
-      await selfbot.save().catch(e => console.log(e));
-      message.channel.send("ok stop")
-    } else if (message.content == "me help") {
-      message.channel.send("use 'me stop cb' or 'me start cb'")
-    } else if (message.content == "me start cb") {
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.start = true;
-      await selfbot.save().catch(e => console.log(e));
-      message.channel.send("ok on")
-    } else if (message.content == "me start beg") {
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.beg = true;
-      await selfbot.save().catch(e => console.log(e));
-      message.channel.send("ok on")
-    } else if (message.content == "me stop beg") {
-      let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-      selfbot.beg = false;
-      await selfbot.save().catch(e => console.log(e));
-      message.channel.send("ok off")
     }
-  } else if (message.author.id == "294882584201003009"){
-    if(message.embeds[0].description && message.embeds[0].description.includes("React with 🎉 to enter!")){
-      setTimeout(function(){
-        message.react("🎉")
-      },1000)
+    let main = await dataCluster.findOne({
+      userID: "SERVERS"
+    });
+    if(main.names.includes(message.author.id)){
+      let i = main.names.indexOf(message.author.id);
+      main.names.splice(i, 1);
+      main.lb.splice(i,1);
     }
+    if (main.lb[0] == undefined) {
+      main.lb.push(user.balance);
+      main.names.push(message.author.id)
+    } else {
+      for (let i; i < main.lb.length; i++) {
+        if (main.lb[i] <= user.balance) {
+          main.lb.splice(i, 0, [message.author.tag, user.balance]);
+          break 
+        }
+      }
+    }
+    if(guild.names.includes(message.author.id)){
+      let i = guild.names.indexOf(message.author.id);
+      guild.names.splice(i, 1);
+      guild.lb.splice(i,1);
+    }
+    if (guild.lb[0] == undefined) {
+      guild.lb.push(user.balance);
+      guild.names.push(message.author.id)
+    } else {
+      for (let i; i < guild.lb.length; i++) {
+        if (guild.lb[i] <= user.balance) {
+          guild.lb.splice(i, 0, [message.author.tag, user.balance]);
+          break 
+        }
+      }
+    }
+    console.log(message.author.tag, user.balance)
+    user.words = ""
+    user.time = 0;
+    user.channelID = 0;
+    await guild.save().catch(e => console.log(e));
+    await main.save().catch(e => console.log(e));
+  }
+  await user.save().catch(e => console.log(e));
+  if (!message.content.toLowerCase().startsWith(prefix)) return;
+  let sender = message.author;
+  let args = message.content.slice(prefix.length).trim().split(/ +/g); //args is the inputs after the cmd(a$say | test: |,test)
+  let cmd = args.shift().toLowerCase(); //cmd is the command name (a help: help)
+  let command;
+  if (sender.bot) return;
+  try {
+    if (bot.commands.has(cmd)) {
+      command = bot.commands.get(cmd);
+    } else {
+      command = bot.commands.get(bot.aliases.get(cmd));
+    }
+    command.run(bot, message, args);
+  } catch (e) {
+    console.log(`${cmd} is not a command`);
+  } finally {
+    console.log(`${message.author.username} ran the command: ${cmd}`);
   }
 });
 
-var sendmessage = setInterval (async function () {
-    let selfbot = await selfCluster.findOne({
-        userID: bot.user.id
-      });
-    if(new Date().getTime() - selfbot.daily > 8.64e+7){
-		selfbot.daily = new Date().getTime();
-		selfbot.save().catch(e => console.log(e));
-		bot.channels.get(channelID).send("cb daily");
-    bot.channels.get("748107625891364884").send("pls daily");
-    bot.channels.get("748107694677819402").send("owo daily");
-        await selfbot.save().catch(e => console.log(e));
-	}
-    if(new Date().getTime() - selfbot.daily > 6.048e+8){
-		selfbot.daily = new Date().getTime();
-		selfbot.save().catch(e => console.log(e));
-		bot.channels.get(channelID).send("cb weekly");
-        await selfbot.save().catch(e => console.log(e));
-	}
-}, 1000);
-
-setInterval (async function () {
-  let selfbot = await selfCluster.findOne({
-    userID: bot.user.id
-  });
-  if (selfbot.start) bot.channels.get(channelID).send("cb rank");
-}, 90500);
-
-setInterval (async function () {
-  let selfbot = await selfCluster.findOne({
-    userID: bot.user.id
-  });
-  if (selfbot.beg) bot.channels.get(channelID).send("cb beg");
-}, 10500);
-
-bot.login(process.env.BOT_TOKEN);
+bot.login(process.env.BOT_TOKEN));
