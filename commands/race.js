@@ -21,6 +21,7 @@ exports.run = async (bot, message, args) => {
     let embed = new discord.MessageEmbed()
         .setTitle("🏁 Starting race in 3 Seconds!")
         .setFooter(`Race type: ${type}`)
+        .setColor("#FFFFFF")
     let msg =  await message.lineReply(embed).then(m=>{
         embed.setTitle("🟧 Ready?")
         .setColor("#FFA500")
@@ -33,6 +34,7 @@ exports.run = async (bot, message, args) => {
                 embed = new discord.MessageEmbed()
                 .setTitle("🏁 Type the text shown")
                 .setDescription(newt)
+                .setColor("#FFFFFF")
                 .setFooter(`Race type: ${type}`)
                 setTimeout(async function(){
                     m.edit(embed);

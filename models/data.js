@@ -2,17 +2,18 @@ const mongoose = require('mongoose');
 
 const messageSchema = new mongoose.Schema({
   someID: String,
-  balance: Number,
-  items: Array,
-  daily: Number,
-  weekly: Number,
-  lb: Array,
-  names: Array,
+  channelID: String,
   prefix: String,
   disable: Array,
+  lb: Array,
+  daily: Number,
+  weekly: Number,
+  balance: Number,
+  items: Array,
+  wpm: Array,
+  names: Array,
   time: Number,
-  words: String,
-  channelID: String
+  words: String
 });
 
 module.exports = mongoose.model("data", messageSchema);

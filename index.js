@@ -36,7 +36,7 @@ fs.readdir("./commands/", (err, files) => {
 
 bot.on("ready", async () => {
   console.log(`Logged in as ${bot.user.tag}`);
-  bot.user.setActivity('Writing essays')
+  bot.user.setActivity('essays')
   let main = await dataCluster.findOne({
     userID: "SERVERS"
   });
@@ -64,13 +64,25 @@ bot.on('message', async message => {
     });
     await guild.save().catch(e => console.log(e));
   }
-  if (message.content.match(/^<@!?(\d+)>$/) && !message.author.bot) {
-    let match = message.content.match(/^<@!?(\d+)>$/);
-    if (match[1] == "696032366845624392") {
-      return message.channel.send(`H-hey **my prefix is **\`${guild.prefix}\``)
-    }
-  }
   let prefix = guild.prefix;
+  if (!message.content.toLowerCase().startsWith(prefix)) return;
+  let sender = message.author;
+  let args = message.content.slice(prefix.length).trim().split(/ +/g); //args is the inputs after the cmd(a$say | test: |,test)
+  let cmd = args.shift().toLowerCase(); //cmd is the command name (a help: help)
+  let command;
+  if (sender.bot) return;
+  try {
+    if (bot.commands.has(cmd)) {
+      command = bot.commands.get(cmd);
+    } else {
+      command = bot.commands.get(bot.aliases.get(cmd));
+    }
+    command.run(bot, message, args);
+  } catch (e) {
+    console.log(`${cmd} is not a command`);
+  } finally {
+    console.log(`${message.author.username} ran the command: ${cmd}`);
+  }
   let user = await dataCluster.findOne({
     someID: message.author.id
   });
@@ -86,6 +98,11 @@ bot.on('message', async message => {
       words: 0
     });
     message.lineReply(`Welcome to ${bot.user.username}! Check your DM for more information`)
+    const embed = new discord.MessageEmbed()
+    .setTitle("Welcome to Typing test!")
+    .setColor("#FFFFFF")
+    .setDescription("We offer a wide range of fun, challenging games to compete with your friends anytime, anywhere!\nThis bot allows you to test your skill and find your WPM(Word Per Minute) using the same formula from other online tests to calculate your WPM accurately. Furthermore, you also can get coins from completing these races.\n\nYou start out with 500 🪙. To start a race, try using !race and type away!")
+    message.author.send(embed)
   }
   if (user.time != 0) {
     if (new Date().getTime() - user.time > 300000) {
@@ -105,6 +122,7 @@ bot.on('message', async message => {
           .setFooter(`Total gained: ${(100 + wpm)}`)
         message.lineReply(embed);
         user.balance += (wpm);
+        user.wpm.push(wpm)
       } else {
         word1 = user.words;
         word2 = message.content;
@@ -133,6 +151,7 @@ bot.on('message', async message => {
             .setFooter(`Total gained: ${(wpm - wrong)}`)
           message.lineReply(embed);
           user.balance += (wpm - wrong);
+          user.wpm.push(wpm)
         }
       }
     }
@@ -179,23 +198,17 @@ bot.on('message', async message => {
     await main.save().catch(e => console.log(e));
   }
   await user.save().catch(e => console.log(e));
-  if (!message.content.toLowerCase().startsWith(prefix)) return;
-  let sender = message.author;
-  let args = message.content.slice(prefix.length).trim().split(/ +/g); //args is the inputs after the cmd(a$say | test: |,test)
-  let cmd = args.shift().toLowerCase(); //cmd is the command name (a help: help)
-  let command;
-  if (sender.bot) return;
-  try {
-    if (bot.commands.has(cmd)) {
-      command = bot.commands.get(cmd);
-    } else {
-      command = bot.commands.get(bot.aliases.get(cmd));
+});
+
+bot.on('message', async message =>{
+  let guild = await dataCluster.findOne({
+    someID: message.guild.id
+  });
+  if (message.content.match(/^<@!?(\d+)>$/) && !message.author.bot) {
+    let match = message.content.match(/^<@!?(\d+)>$/);
+    if (match[1] == "696032366845624392") {
+      return message.channel.send(`Hey **my prefix is **\`${guild.prefix}\``)
     }
-    command.run(bot, message, args);
-  } catch (e) {
-    console.log(`${cmd} is not a command`);
-  } finally {
-    console.log(`${message.author.username} ran the command: ${cmd}`);
   }
 });
 
