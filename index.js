@@ -89,12 +89,13 @@ bot.on('message', async message => {
   if (!user) {
     user = new dataCluster({
       someID: message.author.id,
-      balance: 500,
       daily: 0,
       weekly: 0,
-      inv: [],
-      time: 0,
       channelID: 0,
+      balance: 500,
+      inv: [],
+      wpm: [],
+      time: 0,
       words: 0
     });
     message.lineReply(`Welcome to ${bot.user.username}! Check your DM for more information`)
