@@ -8,6 +8,7 @@ const messageSchema = new mongoose.Schema({
   lb: Array,
   daily: Number,
   weekly: Number,
+  streak: Number,
   balance: Number,
   items: Array,
   wpm: Array,

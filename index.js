@@ -51,20 +51,24 @@ bot.on("ready", async () => {
 });
 
 bot.on('message', async message => {
-  let guild = await dataCluster.findOne({
+  let server = await dataCluster.findOne({
     someID: message.guild.id
   });
-  if (!guild) {
-    guild = new dataCluster({
+  if (!server) {
+    server = new dataCluster({
       someID: message.guild.id,
       prefix: "!",
       disable: [],
       lb: [],
       names: [],
     });
-    await guild.save().catch(e => console.log(e));
+    await server.save().catch(e => console.log(e));
   }
-  let prefix = guild.prefix;
+  let user = await dataCluster.findOne({
+    someID: message.author.id
+  });
+  if(!user) return
+  let prefix = server.prefix;
   if (!message.content.toLowerCase().startsWith(prefix)) return;
   let sender = message.author;
   let args = message.content.slice(prefix.length).trim().split(/ +/g); //args is the inputs after the cmd(a$say | test: |,test)
@@ -83,6 +87,19 @@ bot.on('message', async message => {
   } finally {
     console.log(`${message.author.username} ran the command: ${cmd}`);
   }
+});
+
+bot.on('message', async message =>{
+  if (message.content.match(/^<@!?(\d+)>$/) && !message.author.bot) {
+    let match = message.content.match(/^<@!?(\d+)>$/);
+    if (match[1] == "696032366845624392") {
+      return message.channel.send(`Hey **my prefix is **\`${guild.prefix}\``)
+    }
+  }
+  let guild = await dataCluster.findOne({
+    someID: message.guild.id
+  });
+  if (!guild || !message.content.toLowerCase().startsWith(guild.prefix)) return
   let user = await dataCluster.findOne({
     someID: message.author.id
   });
@@ -91,6 +108,7 @@ bot.on('message', async message => {
       someID: message.author.id,
       daily: 0,
       weekly: 0,
+      streak: 0,
       channelID: 0,
       balance: 500,
       inv: [],
@@ -105,6 +123,7 @@ bot.on('message', async message => {
     .setDescription("We offer a wide range of fun, challenging games to compete with your friends anytime, anywhere!\nThis bot allows you to test your skill and find your WPM(Word Per Minute) using the same formula from other online tests to calculate your WPM accurately. Furthermore, you also can get coins from completing these races.\n\nYou start out with 500 🪙. To start a race, try using !race and type away!")
     message.author.send(embed)
   }
+  if (!user) return
   if (user.time != 0) {
     if (new Date().getTime() - user.time > 300000) {
       let coin = 200 - Math.floor(Math.random() * (100 - 1 + 1)) + 1;
@@ -201,16 +220,4 @@ bot.on('message', async message => {
   await user.save().catch(e => console.log(e));
 });
 
-bot.on('message', async message =>{
-  let guild = await dataCluster.findOne({
-    someID: message.guild.id
-  });
-  if (message.content.match(/^<@!?(\d+)>$/) && !message.author.bot) {
-    let match = message.content.match(/^<@!?(\d+)>$/);
-    if (match[1] == "696032366845624392") {
-      return message.channel.send(`Hey **my prefix is **\`${guild.prefix}\``)
-    }
-  }
-});
-
-bot.login(process.env.BOT_TOKEN);
+bot.login("ODgwNzI3NzU2MzIzODI3NzEy.YSifpA.ft2kzxIPgsQQHxYgA4V6KJZVLmg");
