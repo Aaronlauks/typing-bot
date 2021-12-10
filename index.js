@@ -220,4 +220,4 @@ bot.on('message', async message =>{
   await user.save().catch(e => console.log(e));
 });
 
-bot.login("ODgwNzI3NzU2MzIzODI3NzEy.YSifpA.ft2kzxIPgsQQHxYgA4V6KJZVLmg");
+bot.login(process.env.BOT_TOKEN);
