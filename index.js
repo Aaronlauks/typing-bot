@@ -99,7 +99,7 @@ bot.on('message', async message =>{
   let guild = await dataCluster.findOne({
     someID: message.guild.id
   });
-  if (!guild || !message.content.toLowerCase().startsWith(guild.prefix)) return
+  if (!guild) return
   let user = await dataCluster.findOne({
     someID: message.author.id
   });
