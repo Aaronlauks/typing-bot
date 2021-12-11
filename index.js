@@ -116,6 +116,7 @@ bot.on('message', async message =>{
       time: 0,
       words: 0
     });
+    if (!message.content.toLowerCase().startsWith(guild.prefix)) return
     message.lineReply(`Welcome to ${bot.user.username}! Check your DM for more information`)
     const embed = new discord.MessageEmbed()
     .setTitle("Welcome to Typing test!")
